@@ -39,7 +39,9 @@ defmodule Pinecone.MixProject do
     [
       {:ex_doc, ">= 0.0.0", only: :dev, runtime: false},
       {:bypass, "~> 2.1"},
-      {:tesla, "~> 1.4"}
+      {:tesla, "~> 1.4"},
+      {:jason, "~> 1.4", only: :test},
+      {:mox, "~> 1.0", only: :test}
     ]
   end
 end
