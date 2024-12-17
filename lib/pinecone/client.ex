@@ -7,6 +7,30 @@ defmodule Pinecone.Client do
 
   @type t :: Tesla.Client.t()
 
+  @doc """
+  Creates a new Pinecone client.
+
+  ## Parameters
+    * `opts` - Keyword list of options:
+      * `:base_url` - Base URL for Pinecone API (optional, default: "pinecone.io")
+      * `:https` - Whether to use HTTPS (optional, default: true)
+      * `:environment` - Pinecone environment (optional, defaults to PINECONE_ENVIRONMENT env var)
+      * `:index` - Index name (optional, defaults to PINECONE_INDEX_NAME env var)
+      * `:project` - Project name (optional, defaults to PINECONE_PROJECT_NAME env var)
+      * `:api_key` - API key (optional, defaults to PINECONE_API_KEY env var)
+
+  ## Environment Variables
+    * `PINECONE_API_KEY` - API key for authentication
+    * `PINECONE_INDEX_NAME` - Name of the Pinecone index
+    * `PINECONE_PROJECT_NAME` - Name of your Pinecone project
+    * `PINECONE_ENVIRONMENT` - Pinecone environment (e.g., "us-west1-gcp")
+
+  ## Returns
+    * Tesla client configured for Pinecone API
+
+  ## Raises
+    * `ArgumentError` if required configuration is missing (api_key, environment, index, or project)
+  """
   def new(opts \\ []) do
     base_url = Keyword.get(opts, :base_url, @base_url)
     https = Keyword.get(opts, :https, true)
@@ -50,6 +74,18 @@ defmodule Pinecone.Client do
     Tesla.client(middleware)
   end
 
+  @doc """
+  Handles the response from a Pinecone API request.
+
+  ## Parameters
+    * `resp` - Response tuple from Tesla client
+    * `opts` - Optional keyword list of options (currently unused)
+
+  ## Returns
+    * `{:ok, body}` for successful responses (status < 400)
+    * `{:error, response}` for error responses
+    * Passes through `{:error, reason}` for failed requests
+  """
   def handle_response(resp, opts \\ [])
 
   def handle_response({:error, _} = err, _opts), do: err

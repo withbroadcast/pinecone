@@ -12,6 +12,24 @@ defmodule Pinecone.Vector do
           optional(:namespace) => String.t()
         }
 
+  @doc """
+  Upserts vectors into a namespace.
+
+  ## Parameters
+    * `client` - The Pinecone client
+    * `params` - Map containing:
+      * `vectors` - List of vectors to upsert (required)
+        * Each vector must have:
+          * `values` - Vector data as list of floats
+          * `id` - Unique vector ID
+          * `metadata` - Optional metadata map
+      * `namespace` - Namespace to upsert into (optional)
+    * `opts` - Optional keyword list of options
+
+  ## Returns
+    * `{:ok, response}` on success
+    * `{:error, reason}` on failure
+  """
   @spec upsert(Client.t(), upsert_params(), Keyword.t()) :: {:ok, term()} | {:error, term()}
   def upsert(client, params, opts \\ []) do
     client
@@ -25,6 +43,21 @@ defmodule Pinecone.Vector do
           optional(:deleteAll) => boolean()
         }
 
+  @doc """
+  Deletes vectors from a namespace by their IDs.
+
+  ## Parameters
+    * `client` - The Pinecone client
+    * `params` - Map containing:
+      * `ids` - List of vector IDs to delete (required)
+      * `namespace` - Namespace to delete from (optional)
+      * `deleteAll` - If true, deletes all vectors in the namespace (optional)
+    * `opts` - Optional keyword list of options
+
+  ## Returns
+    * `{:ok, response}` on success
+    * `{:error, reason}` on failure
+  """
   @spec delete(Client.t(), delete_params(), Keyword.t()) :: {:ok, term()} | {:error, term()}
   def delete(client, params, opts \\ []) do
     client
@@ -42,6 +75,27 @@ defmodule Pinecone.Vector do
           optional(:id) => String.t()
         }
 
+  @doc """
+  Queries vectors in the index, finding the closest matches to a query vector.
+
+  ## Parameters
+    * `client` - The Pinecone client
+    * `params` - Map containing:
+      * `topK` - Number of closest matches to return (required)
+      * `namespace` - Namespace to query (optional)
+      * `filter` - Metadata filters to apply (optional)
+      * `includeValues` - Whether to include vector values in response (optional)
+      * `includeMetadata` - Whether to include metadata in response (optional)
+      * `vector` - Query vector as list of floats (optional)
+      * `id` - ID of vector to use as query (optional)
+    * `opts` - Optional keyword list of options
+
+  Note: Either `vector` or `id` must be provided, but not both.
+
+  ## Returns
+    * `{:ok, response}` on success where response contains matches
+    * `{:error, reason}` on failure
+  """
   @spec query(Client.t(), query_params(), Keyword.t()) :: {:ok, term()} | {:error, term()}
   def query(client, params, opts \\ []) do
     client
