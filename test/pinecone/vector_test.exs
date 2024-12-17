@@ -27,10 +27,10 @@ defmodule Pinecone.VectorTest do
                  "namespace" => "test-namespace"
                }
 
-        @success_response
+        {:ok, %Tesla.Env{status: 200, body: %{"upsertedCount" => 1}}}
       end)
 
-      assert {:ok, %{"status" => "success"}} ==
+      assert {:ok, %{"upsertedCount" => 1}} ==
                Pinecone.Vector.upsert(@client, %{
                  vectors: [%{id: "vec1", values: [0.1, 0.2, 0.3]}],
                  namespace: "test-namespace"
@@ -104,13 +104,32 @@ defmodule Pinecone.VectorTest do
            status: 200,
            body: %{
              "matches" => [
-               %{"id" => "vec1", "score" => 0.9}
-             ]
+               %{
+                 "id" => "vec1",
+                 "score" => 0.9,
+                 "values" => [0.1, 0.2, 0.3],
+                 "metadata" => nil
+               }
+             ],
+             "namespace" => "test-namespace",
+             "usage" => %{"readUnits" => 1}
            }
          }}
       end)
 
-      assert {:ok, %{"matches" => [%{"id" => "vec1", "score" => 0.9}]}} ==
+      assert {:ok,
+              %{
+                "matches" => [
+                  %{
+                    "id" => "vec1",
+                    "score" => 0.9,
+                    "values" => [0.1, 0.2, 0.3],
+                    "metadata" => nil
+                  }
+                ],
+                "namespace" => "test-namespace",
+                "usage" => %{"readUnits" => 1}
+              }} ==
                Pinecone.Vector.query(@client, %{
                  topK: 10,
                  vector: [0.1, 0.2, 0.3],
@@ -196,14 +215,28 @@ defmodule Pinecone.VectorTest do
              "vectors" => %{
                "vec1" => %{
                  "id" => "vec1",
-                 "values" => [0.1, 0.2, 0.3]
+                 "values" => [0.1, 0.2, 0.3],
+                 "metadata" => nil
                }
-             }
+             },
+             "namespace" => "test-namespace",
+             "usage" => %{"readUnits" => 1}
            }
          }}
       end)
 
-      assert {:ok, %{"vectors" => %{"vec1" => %{"id" => "vec1", "values" => [0.1, 0.2, 0.3]}}}} ==
+      assert {:ok,
+              %{
+                "vectors" => %{
+                  "vec1" => %{
+                    "id" => "vec1",
+                    "values" => [0.1, 0.2, 0.3],
+                    "metadata" => nil
+                  }
+                },
+                "namespace" => "test-namespace",
+                "usage" => %{"readUnits" => 1}
+              }} ==
                Pinecone.Vector.fetch(@client, %{
                  ids: ["vec1"],
                  namespace: "test-namespace"
@@ -241,10 +274,10 @@ defmodule Pinecone.VectorTest do
                  "setMetadata" => %{"category" => "test"}
                }
 
-        @success_response
+        {:ok, %Tesla.Env{status: 200, body: %{}}}
       end)
 
-      assert {:ok, %{"status" => "success"}} ==
+      assert {:ok, %{}} ==
                Pinecone.Vector.update(@client, %{
                  id: "vec1",
                  values: [0.1, 0.2, 0.3],
@@ -290,10 +323,10 @@ defmodule Pinecone.VectorTest do
                  "namespace" => "test-namespace"
                }
 
-        @success_response
+        {:ok, %Tesla.Env{status: 200, body: %{}}}
       end)
 
-      assert {:ok, %{"status" => "success"}} ==
+      assert {:ok, %{}} ==
                Pinecone.Vector.delete(@client, %{
                  ids: ["vec1", "vec2"],
                  namespace: "test-namespace"
@@ -332,18 +365,20 @@ defmodule Pinecone.VectorTest do
          %Tesla.Env{
            status: 200,
            body: %{
-             "vectors" => ["test_1", "test_2"],
+             "vectors" => [%{"id" => "test_1"}, %{"id" => "test_2"}],
              "namespace" => "test-namespace",
-             "pagination" => %{"next" => "token123"}
+             "pagination" => %{"next" => "token123"},
+             "usage" => %{"readUnits" => 1}
            }
          }}
       end)
 
       assert {:ok,
               %{
-                "vectors" => ["test_1", "test_2"],
+                "vectors" => [%{"id" => "test_1"}, %{"id" => "test_2"}],
                 "namespace" => "test-namespace",
-                "pagination" => %{"next" => "token123"}
+                "pagination" => %{"next" => "token123"},
+                "usage" => %{"readUnits" => 1}
               }} ==
                Pinecone.Vector.list(@client, %{
                  prefix: "test_",
